@@ -1,49 +1,49 @@
 #include "../include/matrix.h"
 
 
-Matrix::Matrix() : rows(0), cols(0), data() {}
+Matrix::Matrix() : rows_(0), cols_(0), data_() {}
 
-Matrix::Matrix(int rows, int cols) : rows(rows), cols(cols), data(rows*cols, 0.0f) {}
+Matrix::Matrix(int rows_, int cols_) : rows_(rows_), cols_(cols_), data_(rows_*cols_, 0.0f) {}
 
-Matrix::Matrix(const Matrix& other) : rows(other.rows), cols(other.cols), data(other.data) {}
+Matrix::Matrix(const Matrix& other) : rows_(other.rows_), cols_(other.cols_), data_(other.data_) {}
 
 
-float& Matrix::operator()(int i, int j) {
-    if (i < 0 || i >= rows || j < 0 || j >= cols) {
+double& Matrix::operator()(int i, int j) {
+    if (i < 0 || i >= rows_ || j < 0 || j >= cols_) {
         throw std::out_of_range("Index out of range.");
     }
-    return data[i * cols + j];
+    return data_[i * cols_ + j];
 }
 
-const float& Matrix::operator()(int i , int j) const {
-    if (i < 0 || i >= rows || j < 0 || j >= cols) {
+const double& Matrix::operator()(int i , int j) const {
+    if (i < 0 || i >= rows_ || j < 0 || j >= cols_) {
         throw std::out_of_range("Index out of range.");
     }
-    return data[i * cols + j];
+    return data_[i * cols_ + j];
 }
 
 Matrix& Matrix::operator=(const Matrix& other) {
     if (this != &other) {
-        rows = other.rows;
-        cols = other.cols;
-        data = other.data;
+        rows_ = other.rows_;
+        cols_ = other.cols_;
+        data_ = other.data_;
     }
 
     return *this;
 }
 
 Matrix Matrix::operator+(const Matrix& other) const {
-    if (rows == other.rows || cols == other.cols) {
-        Matrix result(rows, cols);
-        for (size_t i = 0; i < data.size(); i++) {
-            result.data[i] = data[i] + other.data[i];
+    if (rows_ == other.rows_ || cols_ == other.cols_) {
+        Matrix result(rows_, cols_);
+        for (size_t i = 0; i < data_.size(); i++) {
+            result.data_[i] = data_[i] + other.data_[i];
         }
         return result;
 
-    } else if (other.rows == 1 && other.cols == cols) {
-        Matrix result(rows, cols);
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
+    } else if (other.rows_ == 1 && other.cols_ == cols_) {
+        Matrix result(rows_, cols_);
+        for (int i = 0; i < rows_; i++) {
+            for (int j = 0; j < cols_; j++) {
                 result(i, j) = (*this)(i, j) + other(0, j);
             }
         }
@@ -55,28 +55,28 @@ Matrix Matrix::operator+(const Matrix& other) const {
 }
 
 Matrix Matrix::operator-(const Matrix& other) const {
-    if (rows != other.rows || cols != other.cols) {
+    if (rows_ != other.rows_ || cols_ != other.cols_) {
         throw std::invalid_argument("Dimension mismatch in addition.");
     }
 
-    Matrix result(rows, cols);
-    for (size_t i = 0; i < data.size(); i++) {
-        result.data[i] = data[i] - other.data[i];
+    Matrix result(rows_, cols_);
+    for (size_t i = 0; i < data_.size(); i++) {
+        result.data_[i] = data_[i] - other.data_[i];
     }
 
     return result;
 }
 
 Matrix Matrix::operator*(const Matrix& other) const {
-    if (cols != other.rows) {
+    if (cols_ != other.rows_) {
         throw std::invalid_argument("Dimension mismatch in multiplication.");
     }
 
-    Matrix result(rows, other.cols);
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < other.cols; j++) {
-            float sum = 0.0f;
-            for (int k = 0; k < cols; k++) {
+    Matrix result(rows_, other.cols_);
+    for (int i = 0; i < rows_; i++) {
+        for (int j = 0; j < other.cols_; j++) {
+            double sum = 0.0;
+            for (int k = 0; k < cols_; k++) {
                 sum += (*this)(i, k) * other(k, j);
             }
             result(i,j) = sum;
@@ -86,38 +86,38 @@ Matrix Matrix::operator*(const Matrix& other) const {
     return result;
 }
 
-Matrix Matrix::operator*(const float k) const {
-    Matrix result(rows, cols);
-    for (size_t i = 0; i < data.size(); i++) {
-        result.data[i] = data[i] * k;
+Matrix Matrix::operator*(const double k) const {
+    Matrix result(rows_, cols_);
+    for (size_t i = 0; i < data_.size(); i++) {
+        result.data_[i] = data_[i] * k;
     }
 
     return result;
 }
 
-Matrix operator*(const float k, const Matrix& M) {
+Matrix operator*(const double k, const Matrix& M) {
     return M * k;
 }
 
 Matrix Matrix::operator/(const Matrix& other) const {
-    if (rows == other.rows && cols == other.cols) {
-        Matrix result(rows, cols);
-        for (size_t i = 0; i < data.size(); i++) {
-            result.data[i] = data[i] / other.data[i];
+    if (rows_ == other.rows_ && cols_ == other.cols_) {
+        Matrix result(rows_, cols_);
+        for (size_t i = 0; i < data_.size(); i++) {
+            result.data_[i] = data_[i] / other.data_[i];
         }
         return result;
-    } else if (rows == other.rows && other.cols == 1) {
-        Matrix result(rows, cols);
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
+    } else if (rows_ == other.rows_ && other.cols_ == 1) {
+        Matrix result(rows_, cols_);
+        for (int i = 0; i < rows_; i++) {
+            for (int j = 0; j < cols_; j++) {
                 result(i, j) = (*this)(i, j) / other(i, 0);
             }
         }
         return result;
-    } else if (other.rows == 1 && cols == other.cols) {
-        Matrix result(rows, cols);
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
+    } else if (other.rows_ == 1 && cols_ == other.cols_) {
+        Matrix result(rows_, cols_);
+        for (int i = 0; i < rows_; i++) {
+            for (int j = 0; j < cols_; j++) {
                 result(i, j) = (*this)(i, j) / other(0, j);
             }
         }
@@ -127,84 +127,84 @@ Matrix Matrix::operator/(const Matrix& other) const {
     throw std::invalid_argument("Dimension mismatch in division.");
 }
 
-Matrix Matrix::operator/(float scalar) const {
-    Matrix result(rows, cols);
-    for (size_t i = 0; i < data.size(); ++i)
-        result.data[i] = data[i] / scalar;
+Matrix Matrix::operator/(double scalar) const {
+    Matrix result(rows_, cols_);
+    for (size_t i = 0; i < data_.size(); ++i)
+        result.data_[i] = data_[i] / scalar;
     return result;
 }
 
 
 Matrix& Matrix::operator+=(const Matrix& other) {
-    if (rows != other.rows || cols != other.cols) {
+    if (rows_ != other.rows_ || cols_ != other.cols_) {
         throw std::invalid_argument("Dimension mismatch for +=.");
     }
 
-    for (size_t i = 0; i < data.size(); i++) {
-        data[i] += other.data[i];
+    for (size_t i = 0; i < data_.size(); i++) {
+        data_[i] += other.data_[i];
     }
 
     return *this;
 }
 
 Matrix& Matrix::operator-=(const Matrix& other) {
-    if (rows != other.rows || cols != other.cols) {
+    if (rows_ != other.rows_ || cols_ != other.cols_) {
         throw std::invalid_argument("Dimension mismatch for -=.");
     }
 
-    for (size_t i = 0; i < data.size(); i++) {
-        data[i] -= other.data[i];
+    for (size_t i = 0; i < data_.size(); i++) {
+        data_[i] -= other.data_[i];
     }
 
     return *this;
 }
 
-Matrix& Matrix::operator*=(const float k) {
-    for(size_t i = 0; i < data.size(); i++) {
-        data[i] *= k;
+Matrix& Matrix::operator*=(const double k) {
+    for(size_t i = 0; i < data_.size(); i++) {
+        data_[i] *= k;
     }
 
     return *this;
 }
 
-Matrix& Matrix::operator/=(const float k) {
-    for (size_t i = 0; i < data.size(); i++) {
-        data[i] /= k;
+Matrix& Matrix::operator/=(const double k) {
+    for (size_t i = 0; i < data_.size(); i++) {
+        data_[i] /= k;
     }
 
     return *this;
 }
 
 
-Matrix Matrix::random(int rows, int cols, float mean = 0.0f, float std = 1.0f) {
-    assert((rows != 0 && cols != 0) && "Rows and columns must be greater tha 0!");
-    Matrix result(rows, cols);
+Matrix Matrix::random(int rows_, int cols_, double mean = 0.0f, double std = 1.0f) {
+    assert((rows_ != 0 && cols_ != 0) && "rows_ and columns must be greater tha 0!");
+    Matrix result(rows_, cols_);
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::normal_distribution<float> dist(mean, std);
-    for (float &d : result.data) {
+    std::normal_distribution<double> dist(mean, std);
+    for (double &d : result.data_) {
         d = dist(gen);
     }
     return result;
 }
 
 Matrix Matrix::hadamard(const Matrix& other) const {
-    if (rows != other.rows || cols != other.cols) {
+    if (rows_ != other.rows_ || cols_ != other.cols_) {
         throw std::invalid_argument("Dimension mismatch in dot product.");
     }
 
-    Matrix result(rows, cols);
-    for (size_t i = 0; i < data.size(); i++) {
-        result.data[i] = data[i] * other.data[i];
+    Matrix result(rows_, cols_);
+    for (size_t i = 0; i < data_.size(); i++) {
+        result.data_[i] = data_[i] * other.data_[i];
     }
 
     return result;
 }
 
 Matrix Matrix::transpose() const {
-    Matrix result(cols, rows);
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
+    Matrix result(cols_, rows_);
+    for (int i = 0; i < rows_; i++) {
+        for (int j = 0; j < cols_; j++) {
             result(j, i) = (*this)(i, j);
         }
     }
@@ -212,25 +212,25 @@ Matrix Matrix::transpose() const {
     return result;
 }
 
-Matrix Matrix::maximum(float scalar) const {
-    Matrix result(rows, cols);
-    for (size_t i = 0; i < data.size(); i++) {
-        result.data[i] = std::max(data[i], scalar);
+Matrix Matrix::maximum(double scalar) const {
+    Matrix result(rows_, cols_);
+    for (size_t i = 0; i < data_.size(); i++) {
+        result.data_[i] = std::max(data_[i], scalar);
     }
     return result;
 }
 
 Matrix Matrix::maximum(const Matrix& other) const {
-    if (rows == other.rows && cols == other.cols) {
-        Matrix result(rows, cols);
-        for (size_t i = 0; i < data.size(); i++) {
-            result.data[i] = std::max(data[i], other.data[i]);
+    if (rows_ == other.rows_ && cols_ == other.cols_) {
+        Matrix result(rows_, cols_);
+        for (size_t i = 0; i < data_.size(); i++) {
+            result.data_[i] = std::max(data_[i], other.data_[i]);
         }
         return result;
-    } else if (other.rows == 1 && other.cols == cols) {
-        Matrix result(rows, cols);
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
+    } else if (other.rows_ == 1 && other.cols_ == cols_) {
+        Matrix result(rows_, cols_);
+        for (int i = 0; i < rows_; i++) {
+            for (int j = 0; j < cols_; j++) {
                 result(i, j) = std::max((*this)(i, j), other(0, j));
             }
         }
@@ -239,19 +239,29 @@ Matrix Matrix::maximum(const Matrix& other) const {
 }
 
 Matrix Matrix::exp() const {
-    Matrix result(rows, cols);
-    for (size_t i = 0; i < data.size(); ++i) {
-        result.data[i] = std::exp(data[i]);
+    Matrix result(rows_, cols_);
+    for (size_t i = 0; i < data_.size(); ++i) {
+        result.data_[i] = std::exp(data_[i]);
+    }
+    return result;
+}
+
+Matrix Matrix::clipped(double min_val, double max_val) const {
+    Matrix result(rows_, cols_);
+    for (int i = 0; i < rows_; ++i) {
+        for (int j = 0; j < cols_; ++j) {
+            result(i, j) = std::clamp((*this)(i, j), min_val, max_val);
+        }
     }
     return result;
 }
 
 Matrix Matrix::sumRows() const {
-    Matrix out(rows, 1);
+    Matrix out(rows_, 1);
 
-    for (int i = 0; i < rows; i++) {
-        float sum = 0.0f;
-        for (int j = 0; j < cols; j++) {
+    for (int i = 0; i < rows_; i++) {
+        double sum = 0.0;
+        for (int j = 0; j < cols_; j++) {
             sum += (*this)(i, j);
         }
         out(i, 0) = sum;
@@ -261,11 +271,11 @@ Matrix Matrix::sumRows() const {
 }
 
 Matrix Matrix::sumCols() const {
-    Matrix out(1, cols);
+    Matrix out(1, cols_);
     
-    for (int i = 0; i < cols; i++) {
-        float sum = 0.0f;
-        for (int j = 0; j < rows; j++) {
+    for (int i = 0; i < cols_; i++) {
+        double sum = 0.0;
+        for (int j = 0; j < rows_; j++) {
             sum += (*this)(j, i);
         }
         out(0, i) = sum;
@@ -275,11 +285,11 @@ Matrix Matrix::sumCols() const {
 }
 
 Matrix Matrix::maxRows() const {
-    Matrix result(rows, 1);
+    Matrix result(rows_, 1);
 
-    for (int i = 0; i < rows; i++) {
-        float max_val = (*this)(i, 0);
-        for (int j = 1; j < cols; j++) {
+    for (int i = 0; i < rows_; i++) {
+        double max_val = (*this)(i, 0);
+        for (int j = 1; j < cols_; j++) {
             max_val = std::max(max_val, (*this)(i, j));
         }
         result(i, 0) = max_val;
@@ -288,11 +298,11 @@ Matrix Matrix::maxRows() const {
 }
 
 Matrix Matrix::maxCols() const {
-    Matrix result(1, cols);
+    Matrix result(1, cols_);
 
-    for (int j = 0; j < cols; j++) {
-        float max_val = (*this)(0, j);
-        for (int i = 0; i < rows; i++) {
+    for (int j = 0; j < cols_; j++) {
+        double max_val = (*this)(0, j);
+        for (int i = 0; i < rows_; i++) {
             max_val = std::max(max_val, (*this)(i, j));
         }
         result(0, j) = max_val;
@@ -300,19 +310,20 @@ Matrix Matrix::maxCols() const {
     return result;;
 }
 
-int Matrix::getRows() const { return rows; }
-int Matrix::getCols() const { return cols; }
+int Matrix::getSize() const { return data_.size(); }
+int Matrix::getRows() const { return rows_; }
+int Matrix::getCols() const { return cols_; }
 
 std::ostream& operator<<(std::ostream& os, const Matrix& M) {
     os << std::endl << "[";
-    for (int i = 0; i < M.rows; i++) {
+    for (int i = 0; i < M.rows_; i++) {
         os << "[ ";
-        for (int j = 0; j < M.cols; j++) {
+        for (int j = 0; j < M.cols_; j++) {
             os << std::setw(8) << M(i, j) << " ";
         }
         os << " ]";
 
-        if (i != (M.rows - 1)) {
+        if (i != (M.rows_ - 1)) {
             os << "," << std::endl << " ";
         }
     }

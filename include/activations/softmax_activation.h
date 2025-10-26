@@ -6,7 +6,7 @@
 class SoftmaxActivation {
 
     private:
-        Matrix output;
+        Matrix output_;
 
     public:
         SoftmaxActivation();
@@ -14,7 +14,6 @@ class SoftmaxActivation {
         void forward(const Matrix& inputs);
 
         const Matrix& getOutput() const;
-
 };
 
 #endif
